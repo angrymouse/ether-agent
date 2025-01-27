@@ -36,6 +36,7 @@ contract AgentContract {
     uint256 public immutable tokensPerSubmission;
     uint256 public immutable unbondingPeriod;
     uint256 public immutable submissionThreshold;
+    uint256 public immutable fine;
     uint256 public totalBonded;
 
     event Bonded(address indexed account, uint256 amount);
@@ -45,10 +46,11 @@ contract AgentContract {
     event ChallengeCreated(uint256 indexed challengeId, uint256 indexed proposalId);
     event VoteCast(uint256 indexed challengeId, address indexed voter, uint256 weight);
 
-    constructor(uint256 _tokensPerSubmission, uint256 _unbondingPeriod, uint256 _submissionThreshold) {
+    constructor(uint256 _tokensPerSubmission, uint256 _unbondingPeriod, uint256 _submissionThreshold, uint256 _fine) {
         tokensPerSubmission = _tokensPerSubmission;
         unbondingPeriod = _unbondingPeriod;
         submissionThreshold = _submissionThreshold;
+        fine = _fine;
     }
 
     receive() external payable {
@@ -145,7 +147,6 @@ contract AgentContract {
         Proposal storage proposal = proposedTokens[challenge.targetProposalId];
         proposal.active = false;
 
-        uint256 fine = 10000 ether;
         uint256 remainingFine = fine;
         
         uint256 bonded = bondedBalances[proposal.submitter];
