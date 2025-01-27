@@ -1,0 +1,15 @@
+{
+  "name": "agent-node",
+  "version": "1.0.0",
+  "main": "start.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "ethers": "^6.13.5",
+    "node-llama-cpp": "^3.4.1"
+  }
+}
