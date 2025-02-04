@@ -87,7 +87,8 @@ async function startOperating(db, contract) {
         
         if(db.get("latestSubmission")==currentLatestSubmission){
             console.log("Submitting new thought:\n"+nextSubmission.response)
-            await contract.propose(model.tokenize(nextSubmission.response).map(s=>BigInt(s)))
+           const tx= await contract.propose(model.tokenize(nextSubmission.response).map(s=>BigInt(s)))
+           await tx.wait()
         }
         
     }
