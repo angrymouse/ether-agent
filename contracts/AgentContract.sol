@@ -33,9 +33,9 @@ contract AgentContract {
     Proposal[] public proposedTokens;
     Challenge[] public challenges;
     
-    uint256 public immutable tokensPerSubmission;
     uint256 public immutable unbondingPeriod;
     uint256 public immutable submissionThreshold;
+    uint256 public dignityTamperingAmount;
     uint256 public immutable fine;
     uint256 public totalBonded;
 
@@ -46,8 +46,7 @@ contract AgentContract {
     event ChallengeCreated(uint256 indexed challengeId, uint256 indexed proposalId);
     event VoteCast(uint256 indexed challengeId, address indexed voter, uint256 weight);
 
-    constructor(uint256 _tokensPerSubmission, uint256 _unbondingPeriod, uint256 _submissionThreshold, uint256 _fine) {
-        tokensPerSubmission = _tokensPerSubmission;
+    constructor(uint256 _unbondingPeriod, uint256 _submissionThreshold, uint256 _fine) {
         unbondingPeriod = _unbondingPeriod;
         submissionThreshold = _submissionThreshold;
         fine = _fine;
@@ -90,7 +89,6 @@ contract AgentContract {
 
     function propose(uint32[] calldata tokens) external {
         require(bondedBalances[msg.sender] >= submissionThreshold, "Insufficient governance power");
-        require(tokens.length == tokensPerSubmission, "Invalid tokens count");
         
         proposedTokens.push(Proposal({
             submitter: msg.sender,
@@ -106,6 +104,7 @@ contract AgentContract {
         require(proposalId < proposedTokens.length, "Invalid proposal");
         Proposal storage proposal = proposedTokens[proposalId];
         require(proposal.active, "Proposal not active");
+        require(proposal.blockHeight > block.number, "Challenge period expired");
 
         for (uint256 i = 0; i < challenges.length; i++) {
             if (challenges[i].targetProposalId == proposalId && !challenges[i].resolved) {
@@ -170,6 +169,12 @@ contract AgentContract {
                 delete records[i];
             }
         }
+        dignityTamperingAmount+=1;
     }
+    function getSubmittedTokens(uint256 proposalId) external view returns (uint32[] memory) {
+      require(proposalId < proposedTokens.length, "Invalid proposalId");
+      return proposedTokens[proposalId].submittedTokens;
+    }
+
 
 }

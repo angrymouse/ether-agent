@@ -1,2 +1,4 @@
 agent-node/config.json
 agent-node/node_modules
+models/
+agent-node/db
