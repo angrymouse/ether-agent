@@ -104,7 +104,7 @@ contract AgentContract {
         require(proposalId < proposedTokens.length, "Invalid proposal");
         Proposal storage proposal = proposedTokens[proposalId];
         require(proposal.active, "Proposal not active");
-        require(proposal.blockHeight > block.number, "Challenge period expired");
+        require(proposal.blockHeight - unbondingPeriod > block.number, "Challenge period expired");
 
         for (uint256 i = 0; i < challenges.length; i++) {
             if (challenges[i].targetProposalId == proposalId && !challenges[i].resolved) {
