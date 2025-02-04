@@ -77,18 +77,20 @@ async function startOperating(db, contract) {
         for(let i=currentLatestSubmission-5; i<=currentLatestSubmission; i++){
             let submission=db.get("submission"+i)
             if(submission){
-            chatHistory.push({type:"user",text:"Produce thought/interaction/inner monologue number "+i+", remember to account for previous interactions and roleplay the character. Proceeed right to roleplay without elaboration."})
+            chatHistory.push({type:"user",text:"Produce thought/interaction/inner monologue number "+i+", remember to account for previous interactions and roleplay the character. Try to change up your thought from last one. Proceeed right to roleplay without elaboration."})
             chatHistory.push({type:"model",response:[model.detokenize(submission.map(s=>parseInt(s)))]})
             }
         }
-        chatHistory.push({type:"user",text:"Produce thought/interaction/inner monologue number "+currentLatestSubmission+1+", remember to account for previous interactions and roleplay the character. Proceeed right to roleplay without elaboration."})
+        chatHistory.push({type:"user",text:"Produce thought/interaction/inner monologue number "+currentLatestSubmission+1+", remember to account for previous interactions and roleplay the character. Try to change up your thought from last one. Proceeed right to roleplay without elaboration."})
         chatHistory.push({type:"model",response:[]})
         const nextSubmission= await llamaChat.generateResponse(chatHistory,{seed:currentLatestSubmission+41});
         
         if(db.get("latestSubmission")==currentLatestSubmission){
             console.log("Submitting new thought:\n"+nextSubmission.response)
            const tx= await contract.propose(model.tokenize(nextSubmission.response).map(s=>BigInt(s)))
-           await tx.wait()
+           console.log("Transaction "+tx.hash+"sent")
+           const receipt = await tx.wait();
+           console.log("Transaction mined in block", receipt.blockNumber);
         }
         
     }
@@ -123,7 +125,7 @@ async function initializeDB(config) {
     let db = lmdb.open(config.dbPath)
     if (db.get("latestSubmission") === undefined) {
         await db.put("latestSubmission", 0)
-        await db.put("submission-0", [])
+       
     }
     return db
 }
